@@ -8,4 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Todo extends Model
 {
     use HasFactory;
+
+    // protected $fillable = ['title', 'is_complete', 'img_url', 'user_id'];
+    protected $guarded = [];
 }
