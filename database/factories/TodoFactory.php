@@ -19,7 +19,7 @@ class TodoFactory extends Factory
         return [
             'title' => $this->faker->jobTitle,
             'is_complete' => rand(0,1),
-            'img_url' => $this->faker->imageUrl,
+            'img_path' => $this->faker->imageUrl,
         ];
     }
 }

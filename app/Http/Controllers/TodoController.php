@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreTodoRequest;
 use App\Models\Todo;
 use Illuminate\Http\Request;
 
@@ -16,18 +17,19 @@ class TodoController extends Controller
         return view('todos.create');
     }
 
-    public function store(Request $request) {
-        // Create model
-        // Fill data
-        // Save
-        Todo::create([
-            'title' => $request['title'],
-            'is_complete' => $request['is_complete'] ? 1 : 0,
-            'img_url' => 'https://images.unsplash.com/photo-1650912460907-0b…fHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-            'user_id' => 1
-        ]);
+    public function store(StoreTodoRequest $request) {
+        $validated = $request->validated();
 
-        // Redirect
+        // Store image!
+        $todo = new Todo();
+        $todo->title = $validated['title'];
+        $todo->is_complete = $request['is_complete'] ? 1 : 0;
+        // $todo->img_path = $request->file('img_file')->store('public');
+        $todo->img_path = $request->file('img_file')->store('public');
+        $todo->user_id = 1;
+
+        $todo->save();
+
         return redirect('/todos');
     }
 
