@@ -1,3 +1,3 @@
 <h1>{{ $todo['id'] }}</h1>
-<p>{{ $todo['title'] }}</p>
-<img src="{{ $todo['img_url'] }}" alt="Epic image">
+<a href="/todos/{{ $todo->id }}/edit">{{ $todo->title }}</a>
+<img src="{{ asset($todo['img_path']) }}" alt="Epic image">

@@ -1,4 +1,4 @@
-<form action="/todos" method="POST">
+<form action="/todos" method="POST" enctype="multipart/form-data">
     @csrf
     <input type="text" name="title">
     <input type="checkbox" name="is_complete" value="on">

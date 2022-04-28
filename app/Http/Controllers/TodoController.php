@@ -4,12 +4,23 @@ namespace App\Http\Controllers;
 
 use App\Models\Todo;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class TodoController extends Controller
 {
-    public function index() {
+    public function index(Request $request) {
         // Fetch all todos from database using traditional way / Eloquent Way
-        return Todo::limit(5)->latest()->get();
+
+        // Add in query clause
+        $todos = Todo::where('user_id', auth()->id())
+            ->where('title', 'like', "%{$request->query('title')}%");
+
+        if ($request->query('sortByAsc')) {
+            $todos = $todos->orderBy('title');
+        }
+
+        $todos = $todos->latest()->limit(5)->get();
+        return view('todos.index', compact('todos'));
     }
 
     public function create() {
@@ -23,16 +34,19 @@ class TodoController extends Controller
         Todo::create([
             'title' => $request['title'],
             'is_complete' => $request['is_complete'] ? 1 : 0,
-            'img_url' => 'https://images.unsplash.com/photo-1650912460907-0b…fHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-            'user_id' => 1
+            'img_path' => Str::replace(
+                'public', 'storage',
+                $request->file('img_file')->store('public/images')
+            ), // public/images/img-id12010101.jpg
+            'user_id' => auth()->id(),
         ]);
 
         // Redirect
         return redirect('/todos');
     }
 
-    public function show($id) {
-        $todo = Todo::find($id);
+    public function show(Todo $todo) {
+        $this->authorize('view', $todo);
         return view('todos.show', ['todo' => $todo]);
     }
 
@@ -54,7 +68,10 @@ class TodoController extends Controller
     }
 
     public function destroy($id) {
-        Todo::destroy($id);
+        $todo = Todo::find($id);
+        if (auth()->id() !== $todo->user_id)
+            abort(403);
+        $todo->destroy();
 
         return redirect('/todos');
     }

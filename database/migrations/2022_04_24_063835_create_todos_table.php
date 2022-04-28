@@ -19,7 +19,7 @@ return new class extends Migration
             // title, isComplete, img_url, user_id, category_id
             $table->string('title');
             $table->boolean('is_complete');
-            $table->string('img_url')->nullable();
+            $table->string('img_path')->nullable();
             $table->foreignIdFor(User::class);
             $table->timestamps();
         });
