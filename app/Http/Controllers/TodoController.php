@@ -5,12 +5,15 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreTodoRequest;
 use App\Models\Todo;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class TodoController extends Controller
 {
     public function index() {
         // Fetch all todos from database using traditional way / Eloquent Way
-        return Todo::limit(5)->latest()->get();
+        $todos =  Todo::where('user_id', auth()->id())->latest()->limit(5)->get();
+        return view('todos.index', ['todos' => $todos]);
     }
 
     public function create() {
@@ -25,8 +28,11 @@ class TodoController extends Controller
         $todo->title = $validated['title'];
         $todo->is_complete = $request['is_complete'] ? 1 : 0;
         // $todo->img_path = $request->file('img_file')->store('public');
-        $todo->img_path = $request->file('img_file')->store('public');
-        $todo->user_id = 1;
+        $storage_path = $request->file('img_file')->store('public/images');
+        $public_path = Str::replace('public', 'storage', $storage_path);
+        $todo->img_path = $public_path;
+
+        $todo->user_id = auth()->id();
 
         $todo->save();
 
@@ -34,16 +40,24 @@ class TodoController extends Controller
     }
 
     public function show($id) {
+        $this->authorize('view');
+
         $todo = Todo::find($id);
+
         return view('todos.show', ['todo' => $todo]);
     }
 
     public function edit($id) {
+        $this->authorize('update');
+
         $todo = Todo::find($id);
+
         return view('todos.edit', ['todo' => $todo]);
     }
 
     public function update(Request $request, $id) {
+        $this->authorize('update');
+
         // Find
         $todo = Todo::find($id);
         // Edit
@@ -56,6 +70,8 @@ class TodoController extends Controller
     }
 
     public function destroy($id) {
+        $this->authorize('delete');
+
         Todo::destroy($id);
 
         return redirect('/todos');

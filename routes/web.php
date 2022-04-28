@@ -8,14 +8,13 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth'])->name('dashboard');
 
-Route::get('/greetings', [GreetingController::class, 'hello']);
+Route::resource('todos', TodoController::class)
+->only(['index', 'create'])
+->middleware(['auth']);
 
-Route::get('/todos', [TodoController::class, 'index']);
-Route::get('/todos/create', [TodoController::class, 'create'])->middleware(['auth']);
-Route::post('/todos', [TodoController::class, 'store'])->middleware(['auth']);
-Route::get('/todos/{todo}', [TodoController::class, 'show']);
-Route::get('/todos/{todo}/edit', [TodoController::class, 'edit'])->middleware(['auth']);
-Route::put('/todos/{todo}', [TodoController::class, 'update'])->middleware(['auth']);
-Route::delete('/todos/{todo}', [TodoController::class, 'destroy'])->middleware(['auth']);
+Route::resource('todos', TodoController::class)
+->except(['index', 'create'])
+->middleware(['auth']);
+
 
 require __DIR__.'/auth.php';
